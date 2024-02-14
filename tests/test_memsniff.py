@@ -1,5 +1,7 @@
+import io
 import unittest
 from src.tracker import MemSniff
+from unittest.mock import patch
 
 
 class TestMemSniff(unittest.TestCase):
@@ -15,21 +17,18 @@ class TestMemSniff(unittest.TestCase):
     def test_tracking_halted(self):
         self.memsniff.commence()
         self.memsniff.halt()
-        self.assertTrue(self.memsniff.tracking)
+        self.assertFalse(self.memsniff.tracking)
 
-    def test_memsniff(self, capsys):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_memsniff(self, mock_stdout):
         @self.memsniff
         def dummy_func():
             dummy_list = [10] * 100000000
 
         dummy_func()
 
-        res = capsys.readouterr()
-        self.assertIn("Detected Memory Leaks:", res.out)
-        self.assertIn("File:", res.out)
-        self.assertIn("Line:", res.out)
-        self.assertIn("Memory Increase:", res.out)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        res = mock_stdout.getvalue()
+        self.assertIn("Detected Memory Leaks", res)
+        self.assertIn("File", res)
+        self.assertIn("Line", res)
+        self.assertIn("Memory Increase", res)
