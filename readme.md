@@ -22,7 +22,7 @@ from memsniff.src.tracker import MemSniff
 
 # Decorate your function with MemSniff class
 
-@MemSniff
+@MemSniff()
 def my_function():
     # Your code here
     pass
